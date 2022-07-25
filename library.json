@@ -1,0 +1,29 @@
+{
+	"name": "OSK IO",
+	"keywords": "osk, io, core",
+	"description": "Core Arduino Library for OSK boards.",
+	"license": "GPL",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/OpenSmartKit/OSK_IO"
+	},
+	"authors": [
+		{
+			"name": "baltazorr",
+			"email": "baltazorr@gmail.com",
+			"maintainer": true
+		},
+		{
+			"name": "strange_v",
+			"email": "strange.rand@gmail.com",
+			"maintainer": true
+		}
+	],
+	"dependencies": {
+		"robtillaart/PCF8574": "^0.3.3",
+		"nachtravevl/PCA9685-Arduino": "^1.2.15"
+	},
+	"version": "0.1.0",
+	"frameworks": "arduino",
+	"platforms": "espressif32"
+}
