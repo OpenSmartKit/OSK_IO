@@ -1,4 +1,4 @@
-#include <Motion\Motion.h>
+#include <Motion.h>
 
 Motion::Motion(uint8_t pin, boolean isActiveHigh)
 {

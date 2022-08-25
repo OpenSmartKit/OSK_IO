@@ -10,13 +10,13 @@ extern "C"
 #include <Arduino.h>
 #include <Wire.h>
 #include <PCF8574.h>
-#include "platform/config.h"
+#include <config.h>
 
 #if defined MAIN_PCA9685_ADDR || defined RELAY_PCA9685_ADDR
 #include <PCA9685.h>
 #endif
 #if defined MAIN_PCA9685_ADDR
-#include <IO/cie1931.h>
+#include <cie1931.h>
 #endif
 
 #define INCORRECT_PIN 255
