@@ -529,19 +529,19 @@ uint16_t IO::_getExpanderInput(uint8_t expanderPort)
 	switch (expanderPort)
 	{
 	case 0:
-		return OSK_I10;
+		return OSK_IO10;
 	case 1:
-		return OSK_I11;
+		return OSK_IO11;
 	case 2:
-		return OSK_I12;
+		return OSK_IO12;
 	case 3:
-		return OSK_I13;
+		return OSK_IO13;
 	case 4:
-		return OSK_I14;
+		return OSK_IO14;
 	case 5:
-		return OSK_I15;
+		return OSK_IO15;
 	case 6:
-		return OSK_I16;
+		return OSK_IO16;
 	default:
 		return INCORRECT_PIN;
 	}
@@ -569,19 +569,19 @@ uint8_t IO::_getExpanderIndexByInput(uint16_t pin)
 		return 8;
 	case OSK_IO9:
 		return 9;
-	case OSK_I10:
+	case OSK_IO10:
 		return 10;
-	case OSK_I11:
+	case OSK_IO11:
 		return 11;
-	case OSK_I12:
+	case OSK_IO12:
 		return 12;
-	case OSK_I13:
+	case OSK_IO13:
 		return 13;
-	case OSK_I14:
+	case OSK_IO14:
 		return 14;
-	case OSK_I15:
+	case OSK_IO15:
 		return 15;
-	case OSK_I16:
+	case OSK_IO16:
 		return 16;
 	default:
 		return 0;

@@ -41,13 +41,13 @@
   #define OSK_IO7 36
   #define OSK_IO8 35
   #define OSK_IO9 14
-  #define OSK_I10 100
-  #define OSK_I11 101
-  #define OSK_I12 102
-  #define OSK_I13 103
-  #define OSK_I14 104
-  #define OSK_I15 105
-  #define OSK_I16 106
+  #define OSK_IO10 100
+  #define OSK_IO11 101
+  #define OSK_IO12 102
+  #define OSK_IO13 103
+  #define OSK_IO14 104
+  #define OSK_IO15 105
+  #define OSK_IO16 106
 #endif
 
 // Main board config
@@ -84,11 +84,11 @@
   #if OSK_IO_BOARD == OSK_IO_2_0
     #define OSK_IO8 14
     #define OSK_IO9 100
-    #define OSK_I10 101
-    #define OSK_I11 102
-    #define OSK_I12 103
-    #define OSK_I13 104
-    #define OSK_I14 105
+    #define OSK_IO10 101
+    #define OSK_IO11 102
+    #define OSK_IO12 103
+    #define OSK_IO13 104
+    #define OSK_IO14 105
   #endif
 #endif
 
