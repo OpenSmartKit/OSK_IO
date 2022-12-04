@@ -33,6 +33,7 @@ extern "C"
 
 typedef std::function<void(bool state)> PinChangeHandlerFunction;
 
+/// \private
 struct EventSubscriber
 {
 	bool active;
@@ -40,6 +41,7 @@ struct EventSubscriber
 	int mode;
 };
 
+/// \private
 struct LedConfig
 {
 	uint8_t id;
@@ -48,21 +50,99 @@ struct LedConfig
 	uint8_t target;
 };
 
+/*!
+	\class IO IO.h <IO.h>
+	\brief Main Input/Output maping class. 
+
+	This class is used to work with modules pins.\n
+	It class is singleton. So use getInstance method to use it.
+
+	Usage:
+  \code{.cpp}
+		IO *io;
+		io = IO::getInstance();
+		io->mode(OSK_GREEN_LED, OUTPUT);
+		io->set(OSK_GREEN_LED, HIGH);
+  \endcode
+*/
 class IO
 {
 public:
+	/*!
+		Returns instance of IO class.
+	*/
 	static IO *getInstance();
+
 	~IO();
+
+	/*!
+		Set pin mode
+		\param[in] input Pin. For example OSK_IO1
+		\param[in] mode Pin mode. Can be \c INPUT, \c OUTPUT, \c INPUT_PULLUP, \c INPUT_PULLDOWN
+	*/
 	void mode(uint16_t input, uint8_t mode);
+
+	/*!
+		Get pin digital value
+		\param[in] input Pin. For example OSK_IO1
+		\return return digital pin state LOW or HIGH. It is bool type
+	*/
 	bool get(uint16_t input);
+
+	/*!
+		Set pin digital value
+		\param[in] input Pin. For example OSK_IO1
+		\param[in] state Set digital pin state. LOW or HIGH
+	*/
 	void set(uint16_t input, bool state);
+
+	/*!
+		Set pin PWM value
+		\param[in] input Pin. For example OSK_IO1
+		\param[in] value PWN value. Could be from 0 to 1024
+	*/
 	void pwmWrite(uint16_t input, uint16_t value);
+
+	/*!
+		Get pin PWM value
+		\param[in] input Pin. For example OSK_IO1
+		\return return PWN value. Could be from 0 to 1024
+	*/
 	uint16_t pwmRead(uint16_t input);
+
+	/*!
+		Subscribe on interrupt
+		\param[in] input Pin. For example OSK_IO1
+		\param[in] mode trigger mode:
+			\arg \c LOW - to trigger the interrupt whenever the pin is low,
+			\arg \c CHANGE - to trigger the interrupt whenever the pin changes value
+			\arg \c RISING - to trigger when the pin goes from low to high,
+			\arg \c FALLING - for when the pin goes from high to low.
+			\arg \c HIGH - to trigger the interrupt whenever the pin is high.
+		\param[in] method Callback function
+	*/
 	void on(uint16_t input, int mode, PinChangeHandlerFunction method);
+
+	/*!
+		Unsubscribe from interrupt
+		\param[in] input Pin. For example OSK_IO1
+	*/
 	void off(uint16_t input);
 
 #ifdef MAIN_PCA9685_ADDR
+	/*!
+		Set pin PWM value in percentage
+		\param[in] input Pin. For example OSK_IO1
+		\param[in] value PWN value in percentage. Could be from 0 to 100
+		\param[in] duration Duration in millisecond for smooth changing value.
+	*/
 	void ledDim(uint16_t input, uint8_t value, uint16_t duration = 1000);
+
+	/*!
+		Get pin PWM value in percentage
+		\param[in] input Pin. For example OSK_IO1
+		\return return PWN value in percentage
+	*/
 	uint8_t ledRead(uint16_t input);
 #endif
 

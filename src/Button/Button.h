@@ -14,13 +14,47 @@ extern "C"
 
 typedef std::function<void()> ButtonHandlerFunction;
 
+/*!
+    \class Button Button.h <Button.h>
+    \brief Class to handle buttons actions. 
+
+    Connect buttons or switches to input pin and use this class
+    for reliable handling of different scenarios.
+*/
 class Button
 {
 public:
+    /*!
+		Button constructor. Creates new button instance.
+		\param[in] pin Pin. For example OSK_IO1
+	*/
     Button(uint8_t pin);
+
     ~Button();
+
+    /*!
+		Handle single click on button
+		\param[in] fn Callback function
+	*/
     void click(ButtonHandlerFunction fn);
+
+    /*!
+		Handle long click on button
+		\param[in] fn Callback function
+	*/
     void longClick(ButtonHandlerFunction fn);
+
+    /*!
+		Handle switch on HIGH position
+		\param[in] fn Callback function
+	*/
+    void onHigh(ButtonHandlerFunction fn);
+
+    /*!
+		Handle switch on LOW position
+		\param[in] fn Callback function
+	*/
+    void onLow(ButtonHandlerFunction fn);
 
 private:
     static void _callback(TimerHandle_t handle);
