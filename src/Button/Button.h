@@ -21,6 +21,8 @@ public:
     ~Button();
     void click(ButtonHandlerFunction fn);
     void longClick(ButtonHandlerFunction fn);
+    void onHigh(ButtonHandlerFunction fn);
+    void onLow(ButtonHandlerFunction fn);
 
 private:
     static void _callback(TimerHandle_t handle);
@@ -34,6 +36,8 @@ private:
     uint64_t _timeStart = 0;
     ButtonHandlerFunction _click = nullptr;
     ButtonHandlerFunction _longClick = nullptr;
+    ButtonHandlerFunction _onHigh = nullptr;
+    ButtonHandlerFunction _onLow = nullptr;
 };
 
 #endif
