@@ -21,57 +21,92 @@ void Motion::begin(int offDelay)
 {
   if (_onCallback != nullptr || _offCallback != nullptr)
   {
-    _timer = xTimerCreate("timer", pdMS_TO_TICKS(offDelay * 1000), pdFALSE, this, _timerCallback);
+    _keepOnTimer = xTimerCreate("motion", pdMS_TO_TICKS(offDelay * 1000), pdFALSE, this, _keepOnTimerCallback);
+    _reliabilityTimer = xTimerCreate("mr", pdMS_TO_TICKS(RELIABILITY_TIME), pdFALSE, this, _reliabilityTimerCallback);
     _io->mode(_pin, INPUT);
     _io->on(_pin, CHANGE, [this](uint8_t state)
             { _onPinChange(state); });
-    _onPinChange(_io->get(_pin));
+    _onPinReliableChange();
   }
 }
 
-void Motion::onOn(MotionHandlerFunction fn)
+void Motion::onCallback(MotionHandlerFunction fn)
 {
   _onCallback = fn;
 }
 
-void Motion::onOff(MotionHandlerFunction fn)
+void Motion::offCallback(MotionHandlerFunction fn)
 {
   _offCallback = fn;
 }
 
-void Motion::_timerCallback(TimerHandle_t handle)
+void Motion::changeOffDelay(int offDelay)
+{
+  bool isTimerActive = false;
+  if (xTimerIsTimerActive(_keepOnTimer)) {
+    isTimerActive = true;
+  }
+  xTimerChangePeriod(_keepOnTimer, pdMS_TO_TICKS(offDelay * 1000), 100);
+  if (!isTimerActive) {
+    xTimerStop(_keepOnTimer, MOTION_X_BLOCK_TIME);
+  }
+}
+
+void Motion::_keepOnTimerCallback(TimerHandle_t handle)
 {
   Motion *p = static_cast<Motion *>(pvTimerGetTimerID(handle));
-  p->_onTimerEnd();
+  p->_onKeepOnTimerEnd();
 }
 
 void Motion::_onPinChange(uint8_t state)
 {
+  if (state == pinState && xTimerIsTimerActive(_reliabilityTimer) != pdFALSE) {
+    xTimerStop(_reliabilityTimer, MOTION_X_BLOCK_TIME);
+  } else if (xTimerIsTimerActive(_reliabilityTimer) == pdFALSE) {
+    xTimerStart(_reliabilityTimer, MOTION_X_BLOCK_TIME);
+  }
+}
+
+void Motion::_reliabilityTimerCallback(TimerHandle_t handle)
+{
+  Motion *p = static_cast<Motion *>(pvTimerGetTimerID(handle));
+  p->_onPinReliableChange();
+}
+
+void Motion::_onPinReliableChange()
+{
+  pinState = _io->get(_pin);
+  //DEBUG_MSG("Pin changed: ");
+  //DEBUG_MSG(pinState == LOW ? "Pin is LOW" : "Pin is HIGH");
+  //DEBUG_MSG_NL(_isActive ? "Is Active" : "Not Active");
   if (!_isActiveHigh)
   {
-    state = state == LOW ? HIGH : LOW;
+    pinState = pinState == LOW ? HIGH : LOW;
   }
-  if (state == HIGH)
+  if (pinState == HIGH)
   {
     if (!_isActive)
     {
       _onCallback();
       _isActive = true;
     }
-    if (xTimerIsTimerActive(_timer) != pdFALSE)
+    if (xTimerIsTimerActive(_keepOnTimer) != pdFALSE)
     {
-      xTimerStop(_timer, 0);
+      //DEBUG_MSG_NL("Motion stop timer.");
+      xTimerStop(_keepOnTimer, MOTION_X_BLOCK_TIME);
     }
   }
   else if (_isActive)
   {
-    xTimerStart(_timer, 0);
+    //DEBUG_MSG_NL("Motion start timer.");
+    xTimerStart(_keepOnTimer, MOTION_X_BLOCK_TIME);
   }
 }
 
-void Motion::_onTimerEnd()
+void Motion::_onKeepOnTimerEnd()
 {
-  xTimerStop(_timer, 0);
+  //DEBUG_MSG_NL("Motion end timer.");
+  xTimerStop(_keepOnTimer, MOTION_X_BLOCK_TIME);
   _isActive = false;
   _offCallback();
 }

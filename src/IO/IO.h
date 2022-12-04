@@ -11,6 +11,7 @@ extern "C"
 #include <Wire.h>
 #include <PCF8574.h>
 #include "OSK_config.h"
+#include <Debug.h>
 
 #if defined MAIN_PCA9685_ADDR || defined RELAY_PCA9685_ADDR
 #include <PCA9685.h>

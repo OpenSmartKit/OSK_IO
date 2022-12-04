@@ -16,6 +16,16 @@ Button::~Button()
   _io->off(_pin);
 }
 
+void Button::onHigh(ButtonHandlerFunction fn)
+{
+  _onHigh = fn;
+}
+
+void Button::onLow(ButtonHandlerFunction fn)
+{
+  _onLow = fn;
+}
+
 void Button::click(ButtonHandlerFunction fn)
 {
   _click = fn;

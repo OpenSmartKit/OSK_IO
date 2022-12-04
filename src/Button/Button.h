@@ -43,7 +43,6 @@ public:
 		\param[in] fn Callback function
 	*/
     void longClick(ButtonHandlerFunction fn);
-
     /*!
 		Handle switch on HIGH position
 		\param[in] fn Callback function
@@ -68,6 +67,8 @@ private:
     uint64_t _timeStart = 0;
     ButtonHandlerFunction _click = nullptr;
     ButtonHandlerFunction _longClick = nullptr;
+    ButtonHandlerFunction _onHigh = nullptr;
+    ButtonHandlerFunction _onLow = nullptr;
 };
 
 #endif
