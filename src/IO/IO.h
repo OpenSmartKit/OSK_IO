@@ -170,7 +170,6 @@ private:
 	uint16_t _getExpanderInput(uint8_t expanderPort);
 	uint8_t _getExpanderIndexByInput(uint16_t input);
 	uint8_t _prevValues[10];
-	void _initPrevValues();
 
 #ifdef MAIN_PCA9685_ADDR
 	static void _ledTaskHandler(void *pvParameters);
