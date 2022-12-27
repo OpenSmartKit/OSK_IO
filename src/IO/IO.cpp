@@ -22,6 +22,7 @@ IO::IO()
 #endif
 
 	begin();
+	_initPrevValues();
 }
 
 IO::~IO()
@@ -61,6 +62,15 @@ void IO::begin()
 	_exp->begin();
 	_exp->setButtonMask(0b11111111);
 	_expPinsState = _exp->readButton8();
+
+	if (_exp->isConnected())
+	{
+		DEBUG_MSG("IO Expander PCF8574 is OK on address: ");
+		DEBUG_MSG_NL(IO_PCF8574_ADDR);
+	} else {
+		DEBUG_MSG("IO Expander PCF8574 ERROR on address: ");
+		DEBUG_MSG_NL(IO_PCF8574_ADDR);
+	}
 
 	ledcSetup(PWM_CHANNEL, PWM_FREQUENCY, PWM_RESOLUTION);
 
@@ -237,6 +247,10 @@ void IO::on(uint16_t pin, int mode, PinChangeHandlerFunction method)
 			attachInterrupt(isrPin, inp9Isr, mode);
 			break;
 		}
+
+		uint8_t value = digitalRead(pin);
+		uint8_t index = _getExpanderIndexByInput(pin);
+		_prevValues[index] = value;
 	}
 	else
 	{
@@ -400,8 +414,14 @@ void IO::inp9Isr()
 
 void IO::_inputInterrupt(uint16_t input)
 {
-	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-	xQueueSendFromISR(_queue, &input, &xHigherPriorityTaskWoken);
+	uint8_t value = digitalRead(input);
+	uint8_t index = _getExpanderIndexByInput(input);
+	
+	if (_prevValues[index] != value) {
+		_prevValues[index] = value;
+		BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+		xQueueSendFromISR(_queue, &input, &xHigherPriorityTaskWoken);
+	}
 }
 
 void IO::_expanderInterrupt()
@@ -586,4 +606,45 @@ uint8_t IO::_getExpanderIndexByInput(uint16_t pin)
 	default:
 		return 0;
 	}
+}
+
+void IO::_initPrevValues()
+{
+	uint8_t value, index;
+
+	value = digitalRead(OSK_IO1);
+	index = _getExpanderIndexByInput(OSK_IO1);
+	_prevValues[index] = value;
+
+	value = digitalRead(OSK_IO2);
+	index = _getExpanderIndexByInput(OSK_IO2);
+	_prevValues[index] = value;
+
+	value = digitalRead(OSK_IO3);
+	index = _getExpanderIndexByInput(OSK_IO3);
+	_prevValues[index] = value;
+
+	value = digitalRead(OSK_IO4);
+	index = _getExpanderIndexByInput(OSK_IO4);
+	_prevValues[index] = value;
+
+	value = digitalRead(OSK_IO5);
+	index = _getExpanderIndexByInput(OSK_IO5);
+	_prevValues[index] = value;
+
+	value = digitalRead(OSK_IO6);
+	index = _getExpanderIndexByInput(OSK_IO6);
+	_prevValues[index] = value;
+
+	value = digitalRead(OSK_IO7);
+	index = _getExpanderIndexByInput(OSK_IO7);
+	_prevValues[index] = value;
+
+	value = digitalRead(OSK_IO8);
+	index = _getExpanderIndexByInput(OSK_IO8);
+	_prevValues[index] = value;
+
+	value = digitalRead(OSK_IO9);
+	index = _getExpanderIndexByInput(OSK_IO9);
+	_prevValues[index] = value;
 }

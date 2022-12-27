@@ -27,7 +27,7 @@
 #define OSK_FACE_BOARD        OSK_FACE_1_0
 #endif
 
-#define IO_PCF8574_ADDR 0x27
+#define IO_PCF8574_ADDR 0x20 // 0x27
 #define IO_INT_PIN 13
 
 // IO config
@@ -89,6 +89,8 @@
     #define OSK_IO12 103
     #define OSK_IO13 104
     #define OSK_IO14 105
+    #undef OSK_IO15
+    #undef OSK_IO16
   #endif
 #endif
 
