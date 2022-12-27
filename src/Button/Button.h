@@ -9,7 +9,8 @@ extern "C"
 #include <functional>
 #include <IO.h>
 
-#define CLICK_PERIOD 150
+#define RELIABILITY_PERIOD 60
+#define CLICK_PERIOD 100
 #define LONG_CLICK_PERIOD 1500
 
 typedef std::function<void()> ButtonHandlerFunction;
@@ -36,13 +37,14 @@ public:
 		Handle single click on button
 		\param[in] fn Callback function
 	*/
-    void click(ButtonHandlerFunction fn);
+    void onClick(ButtonHandlerFunction fn);
 
     /*!
 		Handle long click on button
 		\param[in] fn Callback function
 	*/
-    void longClick(ButtonHandlerFunction fn);
+    void onLongClick(ButtonHandlerFunction fn);
+
     /*!
 		Handle switch on HIGH position
 		\param[in] fn Callback function
@@ -55,20 +57,37 @@ public:
 	*/
     void onLow(ButtonHandlerFunction fn);
 
+    /*!
+		Handle switch change position
+		\param[in] fn Callback function
+	*/
+    void onChange(ButtonHandlerFunction fn);
+
+    /*!
+		Default button state: LOW or HIGH. For click functions only
+	*/
+    uint8_t defaultState = LOW;
+
 private:
-    static void _callback(TimerHandle_t handle);
+    static void _changeCallback(TimerHandle_t handle);
+    static void _clickCallback(TimerHandle_t handle);
+    static void _longClickCallback(TimerHandle_t handle);
     void _onPinChange(uint8_t state);
     void _onTimerEnd();
 
     IO *_io = nullptr;
-    TimerHandle_t _timer = nullptr;
+    TimerHandle_t _longClickTimer = nullptr;
+    TimerHandle_t _clickTimer = nullptr;
+    TimerHandle_t _rTimer = nullptr;
     uint8_t _pin = 0;
     uint8_t _state = 0;
-    uint64_t _timeStart = 0;
+    uint8_t _clickEnoughTime = 0;
+    uint8_t _longClickEnoughTime = 0;
     ButtonHandlerFunction _click = nullptr;
     ButtonHandlerFunction _longClick = nullptr;
     ButtonHandlerFunction _onHigh = nullptr;
     ButtonHandlerFunction _onLow = nullptr;
+    ButtonHandlerFunction _onChange = nullptr;
 };
 
 #endif
