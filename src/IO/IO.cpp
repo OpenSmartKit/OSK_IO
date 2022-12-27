@@ -62,6 +62,15 @@ void IO::begin()
 	_exp->setButtonMask(0b11111111);
 	_expPinsState = _exp->readButton8();
 
+	if (_exp->isConnected())
+	{
+		DEBUG_MSG("IO Expander PCF8574 is OK on address: ");
+		DEBUG_MSG_NL(IO_PCF8574_ADDR);
+	} else {
+		DEBUG_MSG("IO Expander PCF8574 ERROR on address: ");
+		DEBUG_MSG_NL(IO_PCF8574_ADDR);
+	}
+
 	ledcSetup(PWM_CHANNEL, PWM_FREQUENCY, PWM_RESOLUTION);
 
 #ifdef MAIN_PCA9685_ADDR
@@ -237,6 +246,10 @@ void IO::on(uint16_t pin, int mode, PinChangeHandlerFunction method)
 			attachInterrupt(isrPin, inp9Isr, mode);
 			break;
 		}
+
+		uint8_t value = digitalRead(pin);
+		uint8_t index = _getExpanderIndexByInput(pin);
+		_prevValues[index] = value;
 	}
 	else
 	{
@@ -400,8 +413,14 @@ void IO::inp9Isr()
 
 void IO::_inputInterrupt(uint16_t input)
 {
-	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-	xQueueSendFromISR(_queue, &input, &xHigherPriorityTaskWoken);
+	uint8_t value = digitalRead(input);
+	uint8_t index = _getExpanderIndexByInput(input);
+	
+	if (_prevValues[index] != value) {
+		_prevValues[index] = value;
+		BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+		xQueueSendFromISR(_queue, &input, &xHigherPriorityTaskWoken);
+	}
 }
 
 void IO::_expanderInterrupt()
@@ -587,3 +606,4 @@ uint8_t IO::_getExpanderIndexByInput(uint16_t pin)
 		return 0;
 	}
 }
+
