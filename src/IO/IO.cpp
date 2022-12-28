@@ -64,9 +64,9 @@ void IO::begin()
 
 	if (_exp->isConnected())
 	{
-		DBG("IO Expander PCF8574 is OK on address: ", IO_PCF8574_ADDR);
+		DBG_S("IO Expander PCF8574 is OK on address: ", IO_PCF8574_ADDR);
 	} else {
-		DBG("IO Expander PCF8574 ERROR on address: ", IO_PCF8574_ADDR);
+		DBG_S("IO Expander PCF8574 ERROR on address: ", IO_PCF8574_ADDR);
 	}
 
 	ledcSetup(PWM_CHANNEL, PWM_FREQUENCY, PWM_RESOLUTION);
