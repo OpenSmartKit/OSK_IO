@@ -9,6 +9,7 @@ extern "C"
 #include "freertos/FreeRTOS.h"
 #include "freertos/timers.h"
 }
+#include <OSK_config.h>
 #include <functional>
 #include <Button.h>
 #include <Debug.h>
