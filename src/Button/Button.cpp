@@ -51,56 +51,61 @@ void Button::onLongClick(ButtonHandlerFunction fn)
 void Button::_changeCallback(TimerHandle_t handle)
 {
   Button *p = static_cast<Button *>(pvTimerGetTimerID(handle));
-  p->_state = p->_io->get(p->_pin);
+  p->_onChangeCallback();
+}
+
+void Button::_onChangeCallback()
+{
+  _state = _io->get(_pin);
 
   // Handle switch change event
-  if (p->_onChange) {
-    p->_onChange();
+  if (_onChange) {
+    _onChange();
   }
 
   // Handle switch OFF event
-  if (p->_onHigh && p->_state == HIGH) {
-    p->_onHigh();
+  if (_onHigh && _state == HIGH) {
+    _onHigh();
   }
 
   // Handle switch ON event
-  if (p->_onLow && p->_state == LOW) {
-    p->_onLow();
+  if (_onLow && _state == LOW) {
+    _onLow();
   }
 
   // Handle button click event
-  if (p->_click) {
-    if (p->_state != p->defaultState && xTimerIsTimerActive(p->_clickTimer) == pdFALSE && p->_isClickDone == 0)
+  if (_click) {
+    if (_state != defaultState && xTimerIsTimerActive(_clickTimer) == pdFALSE && _isClickDone == 0)
     {
-      xTimerStart(p->_clickTimer, 0);
-    } else if (p->_state == p->defaultState && xTimerIsTimerActive(p->_clickTimer) != pdFALSE)
+      xTimerStart(_clickTimer, 0);
+    } else if (_state == defaultState && xTimerIsTimerActive(_clickTimer) != pdFALSE)
     {
-      xTimerStop(p->_clickTimer, 0);
+      xTimerStop(_clickTimer, 0);
     }
 
     // call click callback
-    if (p->_isClickDone == 1 && p->_state == p->defaultState && p->_isLongClickDone == 0)
+    if (_isClickDone == 1 && _state == defaultState && _isLongClickDone == 0)
     {
-      p->_click();
-      p->_isClickDone = 0;
+      _click();
+      _isClickDone = 0;
     }
   }
 
   // Handle button long click event
-  if (p->_longClick) {
-    if (p->_state != p->defaultState && xTimerIsTimerActive(p->_longClickTimer) == pdFALSE && p->_isLongClickDone == 0)
+  if (_longClick) {
+    if (_state != defaultState && xTimerIsTimerActive(_longClickTimer) == pdFALSE && _isLongClickDone == 0)
     {
-      xTimerStart(p->_longClickTimer, 0);
-    } else if (p->_state == p->defaultState && xTimerIsTimerActive(p->_longClickTimer) != pdFALSE)
+      xTimerStart(_longClickTimer, 0);
+    } else if (_state == defaultState && xTimerIsTimerActive(_longClickTimer) != pdFALSE)
     {
-      xTimerStop(p->_longClickTimer, 0);
+      xTimerStop(_longClickTimer, 0);
     }
 
     // call long click callback
-    if (p->_isLongClickDone == 1 && p->_state == p->defaultState)
+    if (_isLongClickDone == 1 && _state == defaultState)
     {
-      p->_longClick();
-      p->_isLongClickDone = 0;
+      _longClick();
+      _isLongClickDone = 0;
     }
   }
 }

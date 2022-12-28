@@ -10,7 +10,7 @@ extern "C"
 #include "freertos/timers.h"
 }
 #include <functional>
-#include <IO.h>
+#include <Button.h>
 #include <Debug.h>
 
 typedef std::function<void()> MotionHandlerFunction;
@@ -22,7 +22,7 @@ typedef std::function<void()> MotionHandlerFunction;
     Connect motion sensor to input pin and use this class
     for reliable handling of different scenarios.
 */
-class Motion
+class Motion : protected Button
 {
 public:
     /*!
@@ -75,15 +75,10 @@ public:
 
 private:
     static void _keepOnTimerCallback(TimerHandle_t handle);
-    static void _reliabilityTimerCallback(TimerHandle_t handle);
-    void _onPinChange(uint8_t state);
-    void _onPinReliableChange();
+    void _onPinChange();
     void _onKeepOnTimerEnd();
 
-    IO *_io = nullptr;
     TimerHandle_t _keepOnTimer = nullptr;
-    TimerHandle_t _reliabilityTimer = nullptr;
-    uint8_t _pin = 0;
     MotionHandlerFunction _onCallback = nullptr;
     MotionHandlerFunction _offCallback = nullptr;
     bool _isActiveHigh = true;
