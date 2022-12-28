@@ -1,20 +1,13 @@
 #include <Motion.h>
 
-Motion::Motion(uint8_t pin, boolean isActiveHigh)
+Motion::Motion(uint8_t pin, boolean isActiveHigh) : Button(pin)
 {
-  _io = IO::getInstance();
-  _pin = pin;
   _isActiveHigh = isActiveHigh;
 }
 
-Motion::Motion(uint8_t pin)
+Motion::Motion(uint8_t pin) : Button(pin)
 {
   Motion(pin, true);
-}
-
-Motion::~Motion()
-{
-  _io->off(_pin);
 }
 
 void Motion::begin(int offDelay)
@@ -22,11 +15,9 @@ void Motion::begin(int offDelay)
   if (_onCallback != nullptr || _offCallback != nullptr)
   {
     _keepOnTimer = xTimerCreate("motion", pdMS_TO_TICKS(offDelay * 1000), pdFALSE, this, _keepOnTimerCallback);
-    _reliabilityTimer = xTimerCreate("mr", pdMS_TO_TICKS(RELIABILITY_TIME), pdFALSE, this, _reliabilityTimerCallback);
-    _io->mode(_pin, INPUT);
-    _io->on(_pin, CHANGE, [this](uint8_t state)
-            { _onPinChange(state); });
-    _onPinReliableChange();
+    onChange([this]()
+            { _onPinChange(); });
+    _onPinChange();
   }
 }
 
@@ -58,22 +49,7 @@ void Motion::_keepOnTimerCallback(TimerHandle_t handle)
   p->_onKeepOnTimerEnd();
 }
 
-void Motion::_onPinChange(uint8_t state)
-{
-  if (state == pinState && xTimerIsTimerActive(_reliabilityTimer) != pdFALSE) {
-    xTimerStop(_reliabilityTimer, MOTION_X_BLOCK_TIME);
-  } else if (xTimerIsTimerActive(_reliabilityTimer) == pdFALSE) {
-    xTimerStart(_reliabilityTimer, MOTION_X_BLOCK_TIME);
-  }
-}
-
-void Motion::_reliabilityTimerCallback(TimerHandle_t handle)
-{
-  Motion *p = static_cast<Motion *>(pvTimerGetTimerID(handle));
-  p->_onPinReliableChange();
-}
-
-void Motion::_onPinReliableChange()
+void Motion::_onPinChange()
 {
   pinState = _io->get(_pin);
   //DEBUG_MSG("Pin changed: ");
