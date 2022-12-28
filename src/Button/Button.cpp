@@ -70,7 +70,7 @@ void Button::_changeCallback(TimerHandle_t handle)
 
   // Handle button click event
   if (p->_click) {
-    if (p->_state != p->defaultState && xTimerIsTimerActive(p->_clickTimer) == pdFALSE && p->_clickEnoughTime == 0)
+    if (p->_state != p->defaultState && xTimerIsTimerActive(p->_clickTimer) == pdFALSE && p->_isClickDone == 0)
     {
       xTimerStart(p->_clickTimer, 0);
     } else if (p->_state == p->defaultState && xTimerIsTimerActive(p->_clickTimer) != pdFALSE)
@@ -79,16 +79,16 @@ void Button::_changeCallback(TimerHandle_t handle)
     }
 
     // call click callback
-    if (p->_clickEnoughTime == 1 && p->_state == p->defaultState && p->_longClickEnoughTime == 0)
+    if (p->_isClickDone == 1 && p->_state == p->defaultState && p->_isLongClickDone == 0)
     {
       p->_click();
-      p->_clickEnoughTime = 0;
+      p->_isClickDone = 0;
     }
   }
 
   // Handle button long click event
   if (p->_longClick) {
-    if (p->_state != p->defaultState && xTimerIsTimerActive(p->_longClickTimer) == pdFALSE && p->_longClickEnoughTime == 0)
+    if (p->_state != p->defaultState && xTimerIsTimerActive(p->_longClickTimer) == pdFALSE && p->_isLongClickDone == 0)
     {
       xTimerStart(p->_longClickTimer, 0);
     } else if (p->_state == p->defaultState && xTimerIsTimerActive(p->_longClickTimer) != pdFALSE)
@@ -97,10 +97,10 @@ void Button::_changeCallback(TimerHandle_t handle)
     }
 
     // call long click callback
-    if (p->_longClickEnoughTime == 1 && p->_state == p->defaultState)
+    if (p->_isLongClickDone == 1 && p->_state == p->defaultState)
     {
       p->_longClick();
-      p->_longClickEnoughTime = 0;
+      p->_isLongClickDone = 0;
     }
   }
 }
@@ -108,13 +108,13 @@ void Button::_changeCallback(TimerHandle_t handle)
 void Button::_longClickCallback(TimerHandle_t handle)
 {
   Button *p = static_cast<Button *>(pvTimerGetTimerID(handle));
-  p->_longClickEnoughTime = 1;
+  p->_isLongClickDone = 1;
 }
 
 void Button::_clickCallback(TimerHandle_t handle)
 {
   Button *p = static_cast<Button *>(pvTimerGetTimerID(handle));
-  p->_clickEnoughTime = 1;
+  p->_isClickDone = 1;
 }
 
 void Button::_onPinChange(uint8_t state)

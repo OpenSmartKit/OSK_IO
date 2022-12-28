@@ -81,8 +81,8 @@ private:
     TimerHandle_t _rTimer = nullptr;
     uint8_t _pin = 0;
     uint8_t _state = 0;
-    uint8_t _clickEnoughTime = 0;
-    uint8_t _longClickEnoughTime = 0;
+    uint8_t _isClickDone = 0;
+    uint8_t _isLongClickDone = 0;
     ButtonHandlerFunction _click = nullptr;
     ButtonHandlerFunction _longClick = nullptr;
     ButtonHandlerFunction _onHigh = nullptr;
