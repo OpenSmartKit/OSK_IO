@@ -25,7 +25,6 @@ extern "C"
 #define EXPANDER_INPUT 245
 
 #define PWM_FREQUENCY 1526
-#define PWM_CHANNEL 0
 #define PWM_RESOLUTION 12
 
 #define TASK_PRIORITY 3
@@ -99,6 +98,18 @@ public:
 	void set(uint16_t input, bool state);
 
 	/*!
+		Enable PWM on pin
+		\param[in] input Pin. For example OSK_IO1
+	*/
+	void pwmEnable(uint16_t input);
+
+	/*!
+		Disable PWM on pin
+		\param[in] input Pin. For example OSK_IO1
+	*/
+	void pwmDisable(uint16_t input);
+
+	/*!
 		Set pin PWM value
 		\param[in] input Pin. For example OSK_IO1
 		\param[in] value PWN value. Could be from 0 to 1024
@@ -169,13 +180,15 @@ private:
 	bool _isNativePort(uint16_t input);
 	uint8_t _getExpanderPort(uint16_t input);
 	uint16_t _getExpanderInput(uint8_t expanderPort);
-	uint8_t _getExpanderIndexByInput(uint16_t input);
+	uint8_t _getInputIndex(uint16_t input);
 	uint8_t _prevValues[10];
 
 #ifdef MAIN_PCA9685_ADDR
 	static void _ledTaskHandler(void *pvParameters);
 	static void _ledTimerHandle(TimerHandle_t handle);
-	uint8_t _getLedChannel(uint16_t input);
+	uint8_t _getLedExpanderChannel(uint16_t input);
+	int _findClosestPwmIdx(int target);
+	int _getClosest(int val1, int val2, int target);
 #endif
 
 #ifdef RELAY_PCA9685_ADDR

@@ -69,8 +69,6 @@ void IO::begin()
 		DBG("IO Expander PCF8574 ERROR on address: %X", IO_PCF8574_ADDR);
 	}
 
-	ledcSetup(PWM_CHANNEL, PWM_FREQUENCY, PWM_RESOLUTION);
-
 #ifdef MAIN_PCA9685_ADDR
 	_led->resetDevices();
 	_led->init();
@@ -138,7 +136,7 @@ void IO::set(uint16_t input, bool state)
 			_exp->write(port, state);
 
 #ifdef MAIN_PCA9685_ADDR
-		uint8_t channel = _getLedChannel(input);
+		uint8_t channel = _getLedExpanderChannel(input);
 		if (channel != INCORRECT_PIN)
 		{
 			if (xTimerIsTimerActive(_ledTimer[channel]))
@@ -166,19 +164,41 @@ void IO::set(uint16_t input, bool state)
 	}
 }
 
+void IO::pwmEnable(uint16_t input)
+{
+	if (_isNativePort(input))
+	{
+		uint8_t channel = _getInputIndex(input);
+		ledcSetup(channel, PWM_FREQUENCY, PWM_RESOLUTION);
+		ledcAttachPin(input, channel);
+	}
+}
+
+void IO::pwmDisable(uint16_t input)
+{
+	if (_isNativePort(input))
+	{
+		uint8_t channel = _getInputIndex(input);
+		ledcDetachPin(input, channel);
+	}
+}
+
 void IO::pwmWrite(uint16_t input, uint16_t value)
 {
 	if (_isNativePort(input))
 	{
-		ledcAttachPin(input, PWM_CHANNEL);
-		ledcWrite(PWM_CHANNEL, value);
+		uint8_t channel = _getInputIndex(input);
+		ledcWrite(channel, value);
 	}
 	else
 	{
 #ifdef MAIN_PCA9685_ADDR
-		uint8_t channel = _getLedChannel(input);
+		uint8_t channel = _getLedExpanderChannel(input);
 		if (channel == INCORRECT_PIN)
+		{
+			DBG("Incorrect input: %d\n", input);
 			return;
+		}
 
 		if (xTimerIsTimerActive(_ledTimer[channel]))
 		{
@@ -194,12 +214,13 @@ uint16_t IO::pwmRead(uint16_t input)
 {
 	if (_isNativePort(input))
 	{
-		return ledcRead(input);
+		uint8_t channel = _getInputIndex(input);
+		return ledcRead(channel);
 	}
 	else
 	{
 #ifdef MAIN_PCA9685_ADDR
-		uint8_t channel = _getLedChannel(input);
+		uint8_t channel = _getLedExpanderChannel(input);
 		if (channel == INCORRECT_PIN)
 			return 0;
 
@@ -246,7 +267,7 @@ void IO::on(uint16_t pin, int mode, PinChangeHandlerFunction method)
 		}
 
 		uint8_t value = digitalRead(pin);
-		uint8_t index = _getExpanderIndexByInput(pin);
+		uint8_t index = _getInputIndex(pin);
 		_prevValues[index] = value;
 	}
 	else
@@ -262,7 +283,7 @@ void IO::on(uint16_t pin, int mode, PinChangeHandlerFunction method)
 			_expPinsState &= ~(1UL << io);
 	}
 
-	_subscribers[_getExpanderIndexByInput(pin)] = {1, method, mode};
+	_subscribers[_getInputIndex(pin)] = {1, method, mode};
 }
 
 void IO::off(uint16_t pin)
@@ -330,7 +351,7 @@ void IO::taskHandler(void *pvParameters)
 				for (uint8_t i = 0; i <= 6; i++)
 				{
 					uint8_t pin = self->_getExpanderInput(i);
-					subscriber = self->_subscribers[self->_getExpanderIndexByInput(pin)];
+					subscriber = self->_subscribers[self->_getInputIndex(pin)];
 					if (!subscriber.active || !subscriber.fn)
 						continue;
 
@@ -347,7 +368,7 @@ void IO::taskHandler(void *pvParameters)
 			}
 			else
 			{
-				subscriber = self->_subscribers[self->_getExpanderIndexByInput(input)];
+				subscriber = self->_subscribers[self->_getInputIndex(input)];
 				if (!subscriber.active || !subscriber.fn)
 					continue;
 
@@ -412,7 +433,7 @@ void IO::inp9Isr()
 void IO::_inputInterrupt(uint16_t input)
 {
 	uint8_t value = digitalRead(input);
-	uint8_t index = _getExpanderIndexByInput(input);
+	uint8_t index = _getInputIndex(input);
 	
 	if (_prevValues[index] != value) {
 		_prevValues[index] = value;
@@ -446,8 +467,9 @@ void IO::ledDim(uint16_t input, uint8_t value, uint16_t duration)
 {
 	if (value > 100)
 		value = 100;
-	
-	uint8_t channel = _getLedChannel(input);
+
+	//NOTE: We do not support led dimming of native pins
+	uint8_t channel = _getLedExpanderChannel(input);
 	if (channel == INCORRECT_PIN)
 		return;
 
@@ -460,7 +482,7 @@ void IO::ledDim(uint16_t input, uint8_t value, uint16_t duration)
 
 	if (duration == 0)
 	{
-		pwmWrite(channel, pgm_read_word(&cie[value]));
+		pwmWrite(input, pgm_read_word(&cie[value]));
 		_ledConfig[channel].state = 0;
 	}
 	else
@@ -482,13 +504,7 @@ void IO::ledDim(uint16_t input, uint8_t value, uint16_t duration)
 uint8_t IO::ledRead(uint16_t input)
 {
 	uint16_t value = pwmRead(input);
-	//TODO: Think about a more optimal way performance-wise (e.g., binary search)
-	for (uint8_t i = 0; i < sizeof(cie)/sizeof(*cie); i++)
-	{
-		if (pgm_read_word(&cie[i]) >= value)
-			return i;
-	}
-	return 0;
+	return _findClosestPwmIdx(value);
 }
 
 void IO::_ledTaskHandler(void *pvParameters)
@@ -523,12 +539,61 @@ void IO::_ledTimerHandle(TimerHandle_t handle)
 	xQueueSend(self->_ledQueue, channel, 0);
 }
 
-uint8_t IO::_getLedChannel(uint16_t input)
+uint8_t IO::_getLedExpanderChannel(uint16_t input)
 {
 	if (input >= 1000 && input < 2000)
 		return input - 1000;
 	else
 		return INCORRECT_PIN;
+}
+
+int IO::_findClosestPwmIdx(int target)
+{
+	int n = sizeof(cie)/sizeof(*cie);
+    if (target <= pgm_read_word(&cie[0]))
+        return 0;
+    if (target >= pgm_read_word(&cie[n - 1]))
+        return n - 1;
+
+    int i = 0, j = n, mid = 0;
+    while (i < j)
+    {
+        mid = (i + j) / 2;
+
+        if (pgm_read_word(&cie[mid]) == target)
+            return mid;
+
+        if (target < pgm_read_word(&cie[mid]))
+        {
+            if (mid > 0 && target > pgm_read_word(&cie[mid - 1]))
+            {
+                int closest = _getClosest(pgm_read_word(&cie[mid - 1]), pgm_read_word(&cie[mid]), target);
+                return closest == pgm_read_word(&cie[mid]) ? mid : mid - 1;
+            }
+
+            j = mid;
+        }
+        else
+        {
+            if (mid < n - 1 && target < pgm_read_word(&cie[mid + 1]))
+            {
+                int closest = _getClosest(pgm_read_word(&cie[mid]), pgm_read_word(&cie[mid + 1]), target);
+                return closest == pgm_read_word(&cie[mid]) ? mid : mid + 1;
+            }
+
+            i = mid + 1;
+        }
+    }
+
+    return mid;
+}
+
+int IO::_getClosest(int val1, int val2, int target)
+{
+    if (target - val1 >= val2 - target)
+        return val2;
+    else
+        return val1;
 }
 #endif
 #ifdef RELAY_PCA9685_ADDR
@@ -564,7 +629,7 @@ uint16_t IO::_getExpanderInput(uint8_t expanderPort)
 	}
 }
 
-uint8_t IO::_getExpanderIndexByInput(uint16_t pin)
+uint8_t IO::_getInputIndex(uint16_t pin)
 {
 	switch (pin)
 	{

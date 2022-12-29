@@ -50,7 +50,7 @@
   #define OSK_IO15 105
   #define OSK_IO16 106
 
-  #define IO_PCF8574_ADDR 0x20 // 0x27
+  #define IO_PCF8574_ADDR 0x27 // 0x20
   #define IO_INT_PIN 13
 #endif
 
