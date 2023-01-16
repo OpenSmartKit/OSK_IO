@@ -4,7 +4,7 @@ Button::Button(uint8_t pin)
 {
   _io = IO::getInstance();
   _pin = pin;
-  _rTimer = xTimerCreate("rTimer", pdMS_TO_TICKS(RELIABILITY_PERIOD), pdFALSE, this, _changeCallback);
+  _rTimer = xTimerCreate("rTimer", pdMS_TO_TICKS(reliabilityPeriod), pdFALSE, this, _changeCallback);
   _io->mode(_pin, INPUT);
   _state = _io->get(_pin);
   defaultState = _state;
