@@ -38,13 +38,6 @@ public:
 	*/
     Button(uint8_t pin);
 
-    /*!
-		Button constructor. Creates new button instance.
-		\param[in] pin Pin. For example OSK_IO1
-        \param[in] reliabilityPeriod Delay in milliseconds to prevent unexpected triggers and remove noises
-	*/
-    Button(uint8_t pin, uint8_t reliabilityPeriod);
-
     ~Button();
 
     /*!
