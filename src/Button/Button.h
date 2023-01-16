@@ -10,9 +10,15 @@ extern "C"
 #include <functional>
 #include <IO.h>
 
-#define RELIABILITY_PERIOD 60
-#define CLICK_PERIOD 100
-#define LONG_CLICK_PERIOD 1500
+#ifndef RELIABILITY_PERIOD
+    #define RELIABILITY_PERIOD 60
+#endif
+#ifndef CLICK_PERIOD
+    #define CLICK_PERIOD 100
+#endif
+#ifndef LONG_CLICK_PERIOD
+    #define LONG_CLICK_PERIOD 1500
+#endif
 
 typedef std::function<void()> ButtonHandlerFunction;
 
@@ -31,6 +37,13 @@ public:
 		\param[in] pin Pin. For example OSK_IO1
 	*/
     Button(uint8_t pin);
+
+    /*!
+		Button constructor. Creates new button instance.
+		\param[in] pin Pin. For example OSK_IO1
+        \param[in] reliabilityPeriod Delay in milliseconds to prevent unexpected triggers and remove noises
+	*/
+    Button(uint8_t pin, uint8_t reliabilityPeriod);
 
     ~Button();
 

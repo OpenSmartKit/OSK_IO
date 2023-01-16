@@ -86,3 +86,21 @@ void Motion::_onKeepOnTimerEnd()
   _isActive = false;
   _offCallback();
 }
+
+void Motion::debug(String debugContext)
+{
+  #if OSK_DEBUG_ON
+    if (debugContext.length() == 0) {
+      debugContext = _debugContext;
+    }
+    if (debugContext.length() > 0) {
+      bool currentPinState = _io->get(_pin);
+      DBG("Motion: %s; Pin is : %s; Light is: %s.", debugContext, currentPinState == LOW ? "LOW" : "HIGH", _isActive ? "ON" : "OFF");
+    }
+	#endif 
+}
+
+void Motion::startDebug(String debugContext)
+{
+  _debugContext = debugContext;
+}
