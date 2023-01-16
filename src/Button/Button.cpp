@@ -2,6 +2,11 @@
 
 Button::Button(uint8_t pin)
 {
+  Button(pin, RELIABILITY_PERIOD);
+}
+
+Button::Button(uint8_t pin, uint8_t reliabilityPeriod)
+{
   _io = IO::getInstance();
   _pin = pin;
   _rTimer = xTimerCreate("rTimer", pdMS_TO_TICKS(reliabilityPeriod), pdFALSE, this, _changeCallback);

@@ -38,6 +38,13 @@ public:
 	*/
     Button(uint8_t pin);
 
+    /*!
+		Button constructor. Creates new button instance.
+		\param[in] pin Pin. For example OSK_IO1
+        \param[in] reliabilityPeriod Delay in milliseconds to prevent unexpected triggers and remove noises
+	*/
+    Button(uint8_t pin, uint8_t reliabilityPeriod);
+
     ~Button();
 
     /*!
@@ -74,11 +81,6 @@ public:
 		Default button state: LOW or HIGH. For click functions only
 	*/
     uint8_t defaultState = LOW;
-
-    /*!
-		Delay in ms. to prevent unexpected triggers and remove noise
-	*/
-    uint8_t reliabilityPeriod = RELIABILITY_PERIOD;
 
 protected:
     IO *_io = nullptr;
