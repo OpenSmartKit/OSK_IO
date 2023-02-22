@@ -178,8 +178,7 @@ void IO::pwmDisable(uint16_t input)
 {
 	if (_isNativePort(input))
 	{
-		uint8_t channel = _getInputIndex(input);
-		ledcDetachPin(input, channel);
+		ledcDetachPin(input);
 	}
 }
 
