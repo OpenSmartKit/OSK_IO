@@ -74,6 +74,7 @@ void IO::begin()
 #ifdef MAIN_PCA9685_ADDR
 	_led->resetDevices();
 	_led->init();
+	_led->setPWMFrequency(PWM_FREQUENCY);
 
 	_ledQueue = xQueueCreate(24, sizeof(uint8_t));
 	xTaskCreatePinnedToCore(this->_ledTaskHandler, "ledTask", TASK_STACK, this, TASK_PRIORITY, &_ledTask, TASK_CORE);
