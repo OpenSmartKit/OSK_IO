@@ -74,6 +74,7 @@ void IO::begin()
 #ifdef MAIN_PCA9685_ADDR
 	_led->resetDevices();
 	_led->init();
+	_led->setPWMFrequency(PWM_FREQUENCY);
 
 	_ledQueue = xQueueCreate(24, sizeof(uint8_t));
 	xTaskCreatePinnedToCore(this->_ledTaskHandler, "ledTask", TASK_STACK, this, TASK_PRIORITY, &_ledTask, TASK_CORE);
@@ -541,6 +542,7 @@ uint8_t IO::_getRelayChannel(uint16_t input)
 }
 #endif
 
+// TODO: This approach does not works correctly for Relay S2
 uint16_t IO::_getExpanderInput(uint8_t expanderPort)
 {
 	switch (expanderPort)
@@ -555,10 +557,14 @@ uint16_t IO::_getExpanderInput(uint8_t expanderPort)
 		return OSK_IO13;
 	case 4:
 		return OSK_IO14;
-	case 5:
-		return OSK_IO15;
-	case 6:
-		return OSK_IO16;
+	#ifdef OSK_IO15
+		case 5:
+			return OSK_IO15;
+	#endif;
+	#ifdef OSK_IO16
+		case 6:
+			return OSK_IO16;
+	#endif;
 	default:
 		return INCORRECT_PIN;
 	}
@@ -596,10 +602,14 @@ uint8_t IO::_getExpanderIndexByInput(uint16_t pin)
 		return 13;
 	case OSK_IO14:
 		return 14;
-	case OSK_IO15:
-		return 15;
-	case OSK_IO16:
-		return 16;
+	#ifdef OSK_IO15
+		case OSK_IO15:
+			return 15;
+	#endif;
+	#ifdef OSK_IO16
+		case OSK_IO16:
+			return 16;
+	#endif;
 	default:
 		return 0;
 	}

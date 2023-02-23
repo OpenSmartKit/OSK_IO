@@ -13,18 +13,18 @@
 * ============= */
 
 // Main Boards
-// #define OSK_MAIN_DC_2_0
-// #define OSK_MAIN_RELAY_1_2
-// #define OSK_MAIN_RELAY2_1_0
+// #define OSK_MAIN_DC_S1
+// #define OSK_MAIN_RELAY_S1
+// #define OSK_MAIN_RELAY_S2
 
 // IO Boards
-// #define OSK_IO_2_0
+// #define OSK_IO_1
 
 // Controller
-// #define OSK_CONTROLLER_ESP32_1_0
+// #define OSK_CONTROLLER_ESP32
 
 // Extension Boards
-// #define OSK_EXT_1_0
+// #define OSK_EXT_1
 
 /*******************
        CONFIG
@@ -38,10 +38,10 @@
    In case of using not default board
    User must define specific OSK_IO_* in main.cpp
 * ============= */
-#ifdef OSK_IO_3_0
+#ifdef OSK_IO_2
   // Specific config here for OSK_IO_3_0 (this is example for the future)
 
-#else // default config is for OSK_IO_2_0
+#else // default config is for OSK_IO_1
   #define OSK_IO10 100
   #define OSK_IO11 101
   #define OSK_IO12 102
@@ -62,13 +62,13 @@
    In case of using not default board
    User must define specific OSK_CONTROLLER_* in main.cpp
 * ============= */
-#ifdef OSK_CONTROLLER_OMEGA2_1_0
-  // Specific config here for OSK_CONTROLLER_OMEGA2_1_0 (this is example for the future)
+#ifdef OSK_CONTROLLER_OMEGA2
+  // Specific config here for OSK_CONTROLLER_OMEGA2 (this is example for the future)
 
-#elif OSK_CONTROLLER_STM32_1_0
-  // Specific config here for OSK_CONTROLLER_STM32_1_0 (this is example for the future)
+#elif OSK_CONTROLLER_STM32
+  // Specific config here for OSK_CONTROLLER_STM32 (this is example for the future)
 
-#else // default config for OSK_CONTROLLER_ESP32_1_0 board based on ESP32
+#else // default config for OSK_CONTROLLER_ESP32 board based on ESP32
   #define OSK_GREEN_LED 2
 
   // Specific config for using IO board OSK_IO_2_0 with controller board OSK_CONTROLLER_ESP32_1_0
@@ -94,7 +94,7 @@
    There is no default main board, so
    one of supported board OSK_MAIN_* must be defined in main.cpp 
 * ============= */
-#ifdef OSK_MAIN_DC_2_0
+#ifdef OSK_MAIN_DC_S1
   #define OSK_DCO1 1000
   #define OSK_DCO2 1001
   #define OSK_DCO3 1002
@@ -105,7 +105,7 @@
   #define MAIN_PCA9685_ADDR 0x40 // 0x7f
   #define OSK_DC_COUNT 6
 
-#elif OSK_MAIN_RELAY_1_2
+#elif OSK_MAIN_RELAY_S1
   #define OSK_RELAY1 2000
   #define OSK_RELAY2 2001
   #define OSK_RELAY3 2002
@@ -117,7 +117,7 @@
 
   #define RELAY_PCA9685_ADDR 0x40 // 0x7f
 
-#elif OSK_MAIN_RELAY2_1_0
+#elif OSK_MAIN_RELAY_S2
   #define OSK_RELAY1 2000
   #define OSK_RELAY2 2001
   #define OSK_RELAY3 2002
