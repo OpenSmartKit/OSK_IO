@@ -31,6 +31,11 @@ void Motion::offCallback(MotionHandlerFunction fn)
   _offCallback = fn;
 }
 
+void Motion::triggerCallback(MotionTriggerFunction fn)
+{
+  _triggerCallback = fn;
+}
+
 void Motion::changeOffDelay(int offDelay)
 {
   bool isTimerActive = false;
@@ -51,10 +56,11 @@ void Motion::_keepOnTimerCallback(TimerHandle_t handle)
 
 void Motion::_onPinChange()
 {
+  if (_forceOn || _forceOff) {
+    return;
+  }
+  debug("");
   pinState = _io->get(_pin);
-  //DEBUG_MSG("Pin changed: ");
-  //DEBUG_MSG(pinState == LOW ? "Pin is LOW" : "Pin is HIGH");
-  //DEBUG_MSG_NL(_isActive ? "Is Active" : "Not Active");
   if (!_isActiveHigh)
   {
     pinState = pinState == LOW ? HIGH : LOW;
@@ -68,23 +74,70 @@ void Motion::_onPinChange()
     }
     if (xTimerIsTimerActive(_keepOnTimer) != pdFALSE)
     {
-      //DEBUG_MSG_NL("Motion stop timer.");
       xTimerStop(_keepOnTimer, MOTION_X_BLOCK_TIME);
     }
   }
   else if (_isActive)
   {
-    //DEBUG_MSG_NL("Motion start timer.");
     xTimerStart(_keepOnTimer, MOTION_X_BLOCK_TIME);
+  }
+
+  if (_triggerCallback) {
+    _triggerCallback(pinState);
   }
 }
 
 void Motion::_onKeepOnTimerEnd()
 {
-  //DEBUG_MSG_NL("Motion end timer.");
   xTimerStop(_keepOnTimer, MOTION_X_BLOCK_TIME);
   _isActive = false;
   _offCallback();
+}
+
+void Motion::externalTrigger(bool state)
+{
+  if (state) {
+    if (!_isActive)
+    {
+      _onCallback();
+      _isActive = true;
+    }
+    if (xTimerIsTimerActive(_keepOnTimer) == pdFALSE)
+    {
+      xTimerStart(_keepOnTimer, MOTION_X_BLOCK_TIME);
+    }
+  } else {
+    _onKeepOnTimerEnd();
+  }
+}
+
+void Motion::forceOn(bool force)
+{
+  if (force) {
+    _forceOn = true;
+    _forceOff = false;
+    if (!_isActive)
+    {
+      _onCallback();
+      _isActive = true;
+    }
+  } else {
+    _forceOn = false;
+  }
+}
+
+void Motion::forceOff(bool force)
+{
+  if (force) {
+    _forceOn = false;
+    _forceOff = true;
+    if (_isActive)
+    {
+      _onKeepOnTimerEnd();
+    }
+  } else {
+    _forceOff = false;
+  }
 }
 
 void Motion::debug(String debugContext)

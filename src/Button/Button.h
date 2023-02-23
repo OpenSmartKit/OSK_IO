@@ -71,6 +71,12 @@ public:
     void onChange(ButtonHandlerFunction fn);
 
     /*!
+		Get current button state (HIGH or LOW)
+		\return return current button state: HIGH or LOW
+	*/
+    uint8_t getState();
+
+    /*!
 		Default button state: LOW or HIGH. For click functions only
 	*/
     uint8_t defaultState = LOW;

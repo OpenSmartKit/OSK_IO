@@ -15,6 +15,7 @@ extern "C"
 #include <Debug.h>
 
 typedef std::function<void()> MotionHandlerFunction;
+typedef std::function<void(bool state)> MotionTriggerFunction;
 
 /*!
   \class Motion Motion.h <Motion.h>
@@ -58,6 +59,12 @@ public:
     void offCallback(MotionHandlerFunction fn);
 
     /*!
+      Callback function on motion sensor pin trigger
+      \param[in] fn Callback function
+    */
+    void triggerCallback(MotionTriggerFunction fn);
+
+    /*!
       Start motion detection
       \param[in] offDelay Delay after stop motion detection in seconds.
     */
@@ -73,6 +80,24 @@ public:
       Debug output. Current state
     */
     void debug(String debugContext = "");
+
+    /*!
+      Force on state
+      \param[in] force set force on to true or false
+    */
+    void forceOn(bool force);
+
+    /*!
+      Force off state
+      \param[in] force set force off to true or false
+    */
+    void forceOff(bool force);
+
+    /*!
+      Trigger ON or OFF state
+      \param[in] state set state. true - turn ON, false - turn OFF
+    */
+    void externalTrigger(bool state);
 
     /*!
       Set debug context to differentiate debug outputs for different instances
@@ -93,8 +118,11 @@ private:
     TimerHandle_t _keepOnTimer = nullptr;
     MotionHandlerFunction _onCallback = nullptr;
     MotionHandlerFunction _offCallback = nullptr;
+    MotionTriggerFunction _triggerCallback = nullptr;
     bool _isActiveHigh = true;
     bool _isActive = false;
+    bool _forceOn = false;
+    bool _forceOff = false;
     String _debugContext = "";
 };
 

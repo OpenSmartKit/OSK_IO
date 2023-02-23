@@ -48,6 +48,11 @@ void Button::onLongClick(ButtonHandlerFunction fn)
   _longClick = fn;
 }
 
+uint8_t Button::getState()
+{
+  return _state;
+}
+
 void Button::_changeCallback(TimerHandle_t handle)
 {
   Button *p = static_cast<Button *>(pvTimerGetTimerID(handle));
