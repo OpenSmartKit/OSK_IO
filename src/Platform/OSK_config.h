@@ -72,8 +72,16 @@
   #define OSK_GREEN_LED 2
 
   // Specific config for using IO board OSK_IO_2_0 with controller board OSK_CONTROLLER_ESP32_1_0
-  #ifdef OSK_IO_3_0
-    // Specific config here for OSK_IO_3_0 (this is example for the future)
+  #ifdef OSK_IO_3_0 // OSK_IO_3_0 = IO 2.7
+    #define OSK_IO1 36
+    #define OSK_IO2 32
+    #define OSK_IO3 39
+    #define OSK_IO4 33
+    #define OSK_IO5 34
+    #define OSK_IO6 25
+    #define OSK_IO7 26
+    #define OSK_IO8 35
+    #define OSK_IO9 14
 
   #else // default config is for OSK_IO_2_0
     #define OSK_IO1 26
