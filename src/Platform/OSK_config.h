@@ -69,7 +69,7 @@
   // Specific config here for OSK_CONTROLLER_STM32 (this is example for the future)
 
 #else // default config for OSK_CONTROLLER_ESP32 board based on ESP32
-  #define OSK_GREEN_LED 2
+  #define OSK_STATUS_LED 2
 
   // Specific config for using IO board OSK_IO_2_0 with controller board OSK_CONTROLLER_ESP32_1_0
   #ifdef OSK_IO_3_0 // OSK_IO_3_0 = IO 2.7
