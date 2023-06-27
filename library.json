@@ -20,7 +20,7 @@
 		}
 	],
 	"dependencies": {
-		"robtillaart/PCF8574": "^0.3.3",
+		"robtillaart/PCF8574": "^0.3.8",
 		"nachtravevl/PCA9685-Arduino": "^1.2.15"
 	},
 	"version": "0.1.0",
